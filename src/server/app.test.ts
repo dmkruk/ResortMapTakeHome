@@ -11,7 +11,7 @@ function testApp() {
 
 describe("REST API", () => {
   it("returns the map and cabana availability", async () => {
-    const response = await request(testApp()).get("/api/map").expect(200);
+    const response = await request(testApp()).get("/api/map").expect("content-type", /json/).expect(200);
 
     expect(response.body).toMatchObject({
       width: 2,
@@ -43,12 +43,26 @@ describe("REST API", () => {
     expect(conflict.body.message).toContain("no longer available");
   });
 
-  it("returns a human-readable error for invalid guest details", async () => {
+  it.each([
+    ["missing guest details", "cabana-0-0", {}, 400, "Enter both"],
+    ["an invalid guest", "cabana-0-0", { room: "999", guestName: "Unknown Guest" }, 422, "couldn’t match"],
+    ["an unknown cabana", "cabana-9-9", { room: "101", guestName: "Alice Smith" }, 404, "find that cabana"],
+  ])("returns a JSON error for %s", async (_case, cabanaId, body, status, message) => {
     const response = await request(testApp())
-      .post("/api/cabanas/cabana-0-0/bookings")
-      .send({ room: "999", guestName: "Unknown Guest" })
-      .expect(422);
+      .post(`/api/cabanas/${cabanaId}/bookings`)
+      .send(body)
+      .expect("content-type", /json/)
+      .expect(status);
 
-    expect(response.body.message).toContain("couldn’t match");
+    expect(response.body.message).toContain(message);
+  });
+
+  it("returns a JSON 404 for unknown API routes", async () => {
+    const response = await request(testApp())
+      .get("/api/not-a-route")
+      .expect("content-type", /json/)
+      .expect(404);
+
+    expect(response.body).toEqual({ message: "API route not found." });
   });
 });

@@ -55,8 +55,27 @@ describe("cabana booking UI", () => {
     expect(screen.getByText("0")).toBeInTheDocument();
     expect(fetchMock).toHaveBeenLastCalledWith(
       "/api/cabanas/cabana-0-0/bookings",
-      expect.objectContaining({ method: "POST" }),
+      expect.objectContaining({
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ room: "101", guestName: "Alice Smith" }),
+      }),
     );
+  });
+
+  it("shows a map error and retries the API request", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(jsonResponse({}, false))
+      .mockResolvedValueOnce(jsonResponse(mapWithAvailability(true)));
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+
+    render(<App />);
+    expect(await screen.findByRole("alert")).toHaveTextContent("map is unavailable");
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+
+    expect(await screen.findByRole("button", { name: "Cabana 1, available" })).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("shows the API validation message and keeps the form open", async () => {

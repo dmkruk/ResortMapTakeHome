@@ -10,5 +10,3 @@ The work took six main steps:
 4. Built the responsive tile map and one-step accessible booking flow using the supplied artwork.
 5. Added domain, API, and UI tests, then fixed issues found by type-checking and test runs.
 6. Ran the finished app in a browser, checked the core flow, and captured the repository screenshot.
-
-Tools used were Codex file editing and terminal tools, npm, TypeScript, Vitest, Testing Library, Supertest, and browser automation for the final run and screenshot. No sub-agents were used. The AI generated implementation and documentation changes, while the supplied brief and files remained the source of product requirements and test data.

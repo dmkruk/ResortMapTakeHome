@@ -13,7 +13,7 @@ type CabanaTile = Tile & { cabanaId: string; label: string; available: boolean }
 async function getMap(): Promise<ResortMap> {
   const response = await fetch("/api/map");
   if (!response.ok) throw new Error("The resort map is unavailable right now.");
-  return response.json() as Promise<ResortMap>;
+  return response.json();
 }
 
 function isCabana(tile: Tile): tile is CabanaTile {
@@ -135,11 +135,6 @@ function App(): React.JSX.Element {
           <p className="map-tip"><span aria-hidden="true">✦</span> Tap any cabana to check its availability.</p>
         </section>
       </main>
-
-      <footer>
-        <span>Azure Bay Resort &amp; Spa</span>
-        <span>Cabana reservations · Daily 8:00–18:00</span>
-      </footer>
 
       {selectedCabana && (
         <BookingDialog
